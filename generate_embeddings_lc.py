@@ -5,11 +5,10 @@ from langchain.document_loaders import DirectoryLoader, PyMuPDFLoader
 from langchain.document_loaders.base import BaseLoader
 from langchain.embeddings.base import Embeddings
 from langchain.embeddings.openai import OpenAIEmbeddings
-from langchain.embeddings import CohereEmbeddings
 from langchain.text_splitter import TextSplitter, TokenTextSplitter
 from langchain.vectorstores import FAISS, VectorStore
 from dotenv import load_dotenv
-load_dotenv("credentials.env")
+load_dotenv()
 
 logging.basicConfig(level=logging.WARNING)
 logger = logging.getLogger(__name__)
@@ -17,12 +16,11 @@ logger = logging.getLogger(__name__)
 def create_vectors(project):
     start_time = time.time()
     res = ""
-    cohere_api_key=os.getenv("COHERE_API_KEY")
 
     # STATIC PATHS
-    DOCUMENT_PATH: str = "./data/"+project+"/original/"
+    DOCUMENT_PATH: str = "./data/"+project+"/originals/"
     VECTOR_STORE_PATH: str = "./data/"+project+"/storage/"
-    OPENAI_EMBEDDING_MODEL_NAME: str = "embed-english-light-v2.0"
+    OPENAI_EMBEDDING_MODEL_NAME: str = "text-embedding-ada-002"
 
     # INDEXING PARAMETERS
     CHUNK_SIZE: int = 1000
@@ -49,9 +47,10 @@ def create_vectors(project):
     print("Documents loaded...")
 
     print("Now calling embeddings...")
-    embeddings: Embeddings = CohereEmbeddings(cohere_api_key= os.getenv("COHERE_API_KEY"))
+    embeddings: Embeddings = OpenAIEmbeddings(
+        model=OPENAI_EMBEDDING_MODEL_NAME, chunk_size=1
+    )
     print("Embeddings done...")
-    
 
 
     vector_store: VectorStore = FAISS.from_documents(
@@ -71,4 +70,4 @@ def create_vectors(project):
 
 
 if __name__ == "__main__":
-    create_vectors("rasiv")
+    create_vectors("pepsico")

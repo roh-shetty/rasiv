@@ -1,0 +1,30 @@
+from azure.storage.blob import BlobServiceClient
+import pandas as pd
+
+# Azure Blob Storage connection details
+account_name = 'your_storage_account_name'
+account_key = 'your_storage_account_key'
+container_name = 'your_container_name'
+blob_name = 'your_blob_name'
+
+# Search parameter value
+search_parameter = 'your_search_parameter_value'
+
+# Create a connection to Azure Blob Storage
+conn_str = f"DefaultEndpointsProtocol=https;AccountName={account_name};AccountKey={account_key};EndpointSuffix=core.windows.net"
+blob_service_client = BlobServiceClient.from_connection_string(conn_str)
+container_client = blob_service_client.get_container_client(container_name)
+
+# Download the blob content as a DataFrame
+blob_client = container_client.get_blob_client(blob_name)
+blob_data = blob_client.download_blob().content_as_text()
+df = pd.read_csv(pd.compat.StringIO(blob_data))
+
+# Filter the DataFrame based on the search parameter value
+filtered_df = df[df['Parameter'] == search_parameter]
+
+# Retrieve the values of other fields for the matching rows
+other_field_values = filtered_df['OtherField'].tolist()
+
+# Print the other field values
+print(other_field_values)

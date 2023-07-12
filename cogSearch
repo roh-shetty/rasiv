@@ -1,0 +1,29 @@
+from azure.core.credentials import AzureKeyCredential
+from azure.search.documents import SearchIndexClient, SearchClient
+
+# Azure Cognitive Search connection details
+service_name = 'your_search_service_name'
+admin_key = 'your_search_admin_key'
+index_name = 'your_index_name'
+
+# Create a connection to Azure Cognitive Search
+endpoint = f"https://{service_name}.search.windows.net/"
+credential = AzureKeyCredential(admin_key)
+index_client = SearchIndexClient(endpoint=endpoint, credential=credential)
+search_client = SearchClient(endpoint=endpoint, index_name=index_name, credential=credential)
+
+# Define the search parameters and perform the search query
+search_text = "your_search_query_text"
+search_results = search_client.search(search_text=search_text)
+
+# Update the other fields for the matching documents
+for result in search_results:
+    document = {
+        "id": result["id"],
+        "field1": result["field1"],  # Keep the existing value
+        "field2": "new_value",  # Update field2 with a new value
+        "field3": result["field3"]  # Keep the existing value
+    }
+    index_client.merge_or_upload_documents(index_name=index_name, documents=[document])
+
+print("Documents updated successfully.")

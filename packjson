@@ -1,0 +1,3 @@
+"clean-cache": "npm cache clean --force",
+    "reinstall-deps": "rm -rf node_modules && npm install",
+    "update-npm": "npm install -g npm"
